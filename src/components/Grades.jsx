@@ -238,9 +238,6 @@ const Grades = () => {
                 : [marksData.studentMarks];
         }
 
-        console.log("[Grades] Components:", components);
-        console.log("[Grades] Marks details:", marksDetails);
-
         const studentRoll = student?.roll_no?.toString();
 
         // Filter marks for the current student
@@ -248,7 +245,6 @@ const Grades = () => {
             d => textOf(d.rollNumber) === studentRoll || textOf(d.rollNo) === studentRoll
         );
 
-        console.log("[Grades] Student marks:", studentMarks);
 
         if (studentMarks.length === 0) {
             return (

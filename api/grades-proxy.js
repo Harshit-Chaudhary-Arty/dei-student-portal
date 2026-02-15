@@ -5,7 +5,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { url, method = 'GET', body } = req.body;
+    const { url, method = 'GET', body, cookies: cmsCookies } = req.body;
 
     // Only allow CMS and cms_new paths
     if (!url || (!url.startsWith('/CMS/') && !url.startsWith('/cms_new/'))) {
@@ -16,7 +16,13 @@ export default async function handler(req, res) {
         const fetchOptions = {
             method,
             headers: {},
+            redirect: 'manual',
         };
+
+        // Forward CMS session cookies if provided
+        if (cmsCookies) {
+            fetchOptions.headers['Cookie'] = cmsCookies;
+        }
 
         if (body && method === 'POST') {
             fetchOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded';
@@ -26,8 +32,22 @@ export default async function handler(req, res) {
         const response = await fetch(`${CMS_BASE}${url}`, fetchOptions);
         const text = await response.text();
 
-        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-        return res.status(response.status).send(text);
+        // Capture set-cookie headers from CMS to relay back to the client
+        const setCookieHeaders = response.headers.getSetCookie
+            ? response.headers.getSetCookie()
+            : [response.headers.get('set-cookie')].filter(Boolean);
+
+        const responseCookies = setCookieHeaders
+            .map(c => c.split(';')[0]) // keep only name=value
+            .join('; ');
+
+        // Return both the CMS response and any session cookies
+        res.setHeader('Content-Type', 'application/json');
+        return res.status(200).json({
+            status: response.status,
+            body: text,
+            cookies: responseCookies || '',
+        });
     } catch (error) {
         console.error('Proxy error:', error.message);
         return res.status(502).json({ error: 'Failed to reach CMS server' });

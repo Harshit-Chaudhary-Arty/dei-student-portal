@@ -5,6 +5,9 @@ import { supabase } from './supabaseClient';
 // we route through the /api/grades-proxy serverless function.
 const isDev = import.meta.env.DEV;
 
+// Store CMS session cookies in memory (for production proxy relay)
+let cmsSessionCookies = '';
+
 const cmsFetch = async (path, options = {}) => {
     if (isDev) {
         // Use Vite dev proxy directly
@@ -12,17 +15,47 @@ const cmsFetch = async (path, options = {}) => {
     }
 
     // Production: route through Vercel serverless proxy
-    const res = await fetch('/api/grades-proxy', {
+    const proxyRes = await fetch('/api/grades-proxy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             url: path,
             method: options.method || 'GET',
             body: options.body || null,
+            cookies: cmsSessionCookies,
         }),
     });
-    return res;
+
+    const proxyData = await proxyRes.json();
+
+    // Store any cookies returned by CMS for subsequent requests
+    if (proxyData.cookies) {
+        // Merge new cookies with existing ones
+        const existing = parseCookies(cmsSessionCookies);
+        const incoming = parseCookies(proxyData.cookies);
+        Object.assign(existing, incoming);
+        cmsSessionCookies = Object.entries(existing).map(([k, v]) => `${k}=${v}`).join('; ');
+    }
+
+    // Return a Response-like object so the rest of the code works unchanged
+    return {
+        ok: proxyData.status >= 200 && proxyData.status < 300,
+        status: proxyData.status,
+        text: async () => proxyData.body,
+    };
 };
+
+// Parse "name=value; name2=value2" into { name: value, name2: value2 }
+const parseCookies = (cookieStr) => {
+    if (!cookieStr) return {};
+    const result = {};
+    cookieStr.split(';').forEach(pair => {
+        const [key, ...rest] = pair.trim().split('=');
+        if (key) result[key.trim()] = rest.join('=');
+    });
+    return result;
+};
+
 
 // ─── XML Parser ─────────────────────────────────────────────────────────────────
 const parseXML = (xmlText) => {
