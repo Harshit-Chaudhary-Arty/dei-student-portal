@@ -1,0 +1,12 @@
+{
+    "rewrites": [
+        {
+            "source": "/CMS/:path*",
+            "destination": "https://admission.dei.ac.in:8085/CMS/:path*"
+        },
+        {
+            "source": "/cms_new/:path*",
+            "destination": "https://admission.dei.ac.in:8085/cms_new/:path*"
+        }
+    ]
+}

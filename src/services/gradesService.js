@@ -1,60 +1,8 @@
 import { supabase } from './supabaseClient';
-
-// ─── CMS Proxy Helper ──────────────────────────────────────────────────────────
-// In dev, Vite proxy handles /CMS/* routes. In production (Vercel),
-// we route through the /api/grades-proxy serverless function.
-const isDev = import.meta.env.DEV;
-
-// Store CMS session cookies in memory (for production proxy relay)
-let cmsSessionCookies = '';
-
-const cmsFetch = async (path, options = {}) => {
-    if (isDev) {
-        // Use Vite dev proxy directly
-        return fetch(path, options);
-    }
-
-    // Production: route through Vercel serverless proxy
-    const proxyRes = await fetch('/api/grades-proxy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            url: path,
-            method: options.method || 'GET',
-            body: options.body || null,
-            cookies: cmsSessionCookies,
-        }),
-    });
-
-    const proxyData = await proxyRes.json();
-
-    // Store any cookies returned by CMS for subsequent requests
-    if (proxyData.cookies) {
-        // Merge new cookies with existing ones
-        const existing = parseCookies(cmsSessionCookies);
-        const incoming = parseCookies(proxyData.cookies);
-        Object.assign(existing, incoming);
-        cmsSessionCookies = Object.entries(existing).map(([k, v]) => `${k}=${v}`).join('; ');
-    }
-
-    // Return a Response-like object so the rest of the code works unchanged
-    return {
-        ok: proxyData.status >= 200 && proxyData.status < 300,
-        status: proxyData.status,
-        text: async () => proxyData.body,
-    };
-};
-
-// Parse "name=value; name2=value2" into { name: value, name2: value2 }
-const parseCookies = (cookieStr) => {
-    if (!cookieStr) return {};
-    const result = {};
-    cookieStr.split(';').forEach(pair => {
-        const [key, ...rest] = pair.trim().split('=');
-        if (key) result[key.trim()] = rest.join('=');
-    });
-    return result;
-};
+// CMS requests to /CMS/* are proxied transparently:
+// - In dev: by Vite's server.proxy (vite.config.js)
+// - In production: by Vercel rewrites (vercel.json)
+// No special fetch wrapper needed — just use fetch('/CMS/...') directly.
 
 
 // ─── XML Parser ─────────────────────────────────────────────────────────────────
@@ -153,7 +101,7 @@ export const loginToCMS = async (rollNo, password) => {
         params.append('password', password);
         params.append('application', 'CMS');
 
-        const response = await cmsFetch('/CMS/login/loginProcedureStart.htm', {
+        const response = await fetch('/CMS/login/loginProcedureStart.htm', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: params.toString()
@@ -198,7 +146,7 @@ export const loginToCMS = async (rollNo, password) => {
 // ─── Step 2 — Fetch roll number list (confirms session & gets student details) ─
 export const fetchRollNumbers = async () => {
     try {
-        const response = await cmsFetch(
+        const response = await fetch(
             '/CMS/studentMarksSummary/getStudentRollNumber.htm?application=CMS'
         );
         const text = await response.text();
@@ -233,7 +181,7 @@ export const fetchSemesters = async (rollNo) => {
             rollNumber: rollNo
         });
 
-        const response = await cmsFetch(
+        const response = await fetch(
             `/CMS/marksInfo/getRegisteredSemesterList.htm?${params.toString()}`
         );
         const text = await response.text();
@@ -305,7 +253,7 @@ export const fetchCourses = async (rollNo, semesterDetails) => {
 
         // Strategy 1: getRegisteredCourseList
         try {
-            const response = await cmsFetch(
+            const response = await fetch(
                 `/CMS/marksInfo/getRegisteredCourseList.htm?${commonParams.toString()}`,
                 { credentials: 'include' }
             );
@@ -346,7 +294,7 @@ export const fetchCourses = async (rollNo, semesterDetails) => {
                 params.append('courseCode', testCode);
                 params.append('displayType', 'I');
 
-                const response = await cmsFetch(
+                const response = await fetch(
                     `/CMS/awardsheet/getEvaluationComponents.htm?${params.toString()}`,
                     { credentials: 'include' }
                 );
@@ -422,7 +370,7 @@ export const fetchEvaluationComponents = async (rollNo, courseDetails) => {
             displayType: 'I',
         });
 
-        const response = await cmsFetch(
+        const response = await fetch(
             `/CMS/marksInfo/getStudentListANG.htm?${params.toString()}`,
             { credentials: 'include' }
         );
@@ -456,7 +404,7 @@ export const fetchGrades = async (rollNo, courseDetails) => {
             displayType: 'I',
         });
 
-        const response = await cmsFetch(
+        const response = await fetch(
             `/CMS/marksInfo/getStudentMarks.htm?${params.toString()}`,
             { credentials: 'include' }
         );
