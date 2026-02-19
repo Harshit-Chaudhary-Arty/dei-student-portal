@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { GraduationCap, CheckCircle, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signupStudent } from '../services/authService';
+import { loginToCMS, fetchSemesters, fetchRollNumbers } from '../services/gradesService';
 import {
   Card,
   CardContent,
@@ -78,6 +79,43 @@ const Signup = () => {
     setError('');
 
     try {
+      // Step 1: Strict Base64 Login Verification (Exactly as requested)
+      const b64Roll = btoa(formData.rollNo);
+      const b64Pass = btoa(formData.password);
+      const now = new Date().toString();
+      const loginUrl = `/CMS/login/getLoginDetails.htm?application=CMS&angular_application=ANG&requestFrom=ANGULAR&userName=${b64Roll}&password=${b64Pass}&maxLogins=5&date=${encodeURIComponent(now)}&userGroupId=STD`;
+
+      const authResp = await fetch(loginUrl);
+      const authText = await authResp.text();
+
+      // STRICT CHECK: Success MUST contain the userName tag with the correct roll number.
+      // Failed attempts return <loginInfo> </loginInfo> or empty tags.
+      const successPattern = `<userName>${formData.rollNo}</userName>`;
+      if (!authText.includes(successPattern)) {
+        setError('Incorrect CMS password. Please enter your correct CMS password.');
+        setLoading(false);
+        return;
+      }
+
+      // Step 2: Proceed with standard service calls to populate session state
+      // This ensures everything else (semesters, etc.) is initialized normally
+      await loginToCMS(formData.rollNo, formData.password);
+      await fetchRollNumbers();
+      const sems = await fetchSemesters(formData.rollNo);
+
+      const semesters = Array.isArray(sems) ? sems : [];
+      const hasValidData = semesters.length > 0 && semesters.some(s => {
+        const code = (s.semesterCode || s.semesterName || s.semester || '').toString().toUpperCase();
+        return code.includes('SM');
+      });
+
+      if (!hasValidData) {
+        setError('Incorrect CMS password. Please enter your correct CMS password.');
+        setLoading(false);
+        return;
+      }
+
+      // If CMS authentication succeeds, proceed to save the user in Supabase
       const result = await signupStudent({
         name: formData.name,
         rollNo: formData.rollNo,
