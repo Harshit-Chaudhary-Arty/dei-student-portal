@@ -239,12 +239,12 @@ const Signup = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-foreground">Password</Label>
+                <Label htmlFor="password" universityId="text-foreground">CMS Password</Label>
                 <Input
                   id="password"
                   type="password"
                   name="password"
-                  placeholder="••••••••"
+                  placeholder="Enter your CMS password"
                   value={formData.password}
                   onChange={handleChange}
                   className="bg-background border-input text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"

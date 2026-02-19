@@ -54,6 +54,26 @@ export const signupStudent = async (studentData) => {
   }
 };
 
+// Check if a student exists in Supabase
+export const checkUserExists = async (rollNo) => {
+  try {
+    const { data, error } = await supabase
+      .from('students')
+      .select('roll_no')
+      .eq('roll_no', rollNo)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      throw error;
+    }
+
+    return !!data;
+  } catch (error) {
+    console.error('Error checking user existence:', error);
+    return false;
+  }
+};
+
 // Login Service - Verifies credentials and returns student data
 export const loginStudent = async (loginData) => {
   try {

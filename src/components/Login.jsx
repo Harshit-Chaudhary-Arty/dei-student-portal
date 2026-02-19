@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { GraduationCap, CheckCircle, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { loginStudent } from '../services/authService';
+import { loginStudent, checkUserExists } from '../services/authService';
 import {
   Card,
   CardContent,
@@ -58,6 +58,19 @@ const Login = () => {
     setSuccess('');
 
     try {
+      // First check if user exists in our records
+      const exists = await checkUserExists(formData.rollNo);
+
+      if (!exists) {
+        setError(
+          <span>
+            No account found. Please <Link to="/signup" className="underline hover:text-white font-medium">create an account</Link> first.
+          </span>
+        );
+        setLoading(false);
+        return;
+      }
+
       const result = await loginStudent({
         rollNo: formData.rollNo,
         password: formData.password
@@ -74,7 +87,7 @@ const Login = () => {
           navigate('/dashboard');
         }, 1000);
       } else {
-        setError(result.error || 'Invalid credentials');
+        setError(result.error || 'Invalid roll number or password');
       }
     } catch (error) {
       setError('An error occurred during login');
