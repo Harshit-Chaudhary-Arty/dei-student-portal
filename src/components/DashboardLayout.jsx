@@ -40,6 +40,7 @@ const DashboardLayout = () => {
   const navItems = [
     { path: '/dashboard', icon: Home, label: 'Overview' },
     { path: '/dashboard/attendance', icon: Calendar, label: 'Attendance' },
+    { path: '/dashboard/mark-attendance', icon: FileText, label: 'Mark Attendance' },
     { path: '/dashboard/timetable', icon: BookOpen, label: 'Timetable' },
     { path: '/dashboard/grades', icon: FileText, label: 'Grades' },
     { path: '/dashboard/library', icon: Library, label: 'Library' },

@@ -10,6 +10,7 @@ import { GradesPage, LibraryPage, NoticesPage } from './components/PlaceholderPa
 import TimetablePage from './components/TimetablePage';
 import Grades from './components/Grades';
 import MakeAnnouncementPage from './components/MakeAnnouncementPage';
+import MarkAttendance from './components/MarkAttendance';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<Home />} />
           <Route path="attendance" element={<AttendancePage />} />
+          <Route path="mark-attendance" element={<MarkAttendance />} />
           {/* This will now use the new TimetablePage component */}
           <Route path="timetable" element={<TimetablePage />} />
           <Route path="grades" element={<Grades />} />
