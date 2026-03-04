@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Outlet, useLocation, Link } from 'react-router-dom';
-import { GraduationCap, LogOut, Home, Calendar, BookOpen, Library, FileText, Bell, Menu, Megaphone } from 'lucide-react';
+import { GraduationCap, LogOut, Home, Calendar, BookOpen, Library, FileText, Bell, Menu, Megaphone, FileQuestion, CheckSquare } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -46,6 +46,8 @@ const DashboardLayout = () => {
     { path: '/dashboard/library', icon: Library, label: 'Library' },
     { path: '/dashboard/notices', icon: Bell, label: 'Notices' },
     { path: '/dashboard/make-announcement', icon: Megaphone, label: 'Make Announcement' },
+    { path: '/dashboard/leave-management', icon: FileQuestion, label: 'Leave Management' },
+    { path: '/dashboard/leave-approvals', icon: CheckSquare, label: 'DL/ML Approvals' },
   ];
 
   const SidebarContent = () => (
