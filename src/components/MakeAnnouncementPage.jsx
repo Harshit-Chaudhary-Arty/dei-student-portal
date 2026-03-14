@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { createAnnouncement } from '../services/announcements';
-import { AlertCircle } from 'lucide-react';
+import { createAnnouncement, uploadAttachment } from '../services/announcements';
+import { Upload } from 'lucide-react';
 
 const LABELS = [
   { name: 'DHA', color: 'blue' },
@@ -37,8 +37,15 @@ const MakeAnnouncementPage = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedLabel, setSelectedLabel] = useState(null);
+  const [attachment, setAttachment] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setAttachment(e.target.files[0]);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!title.trim() || !description.trim() || !selectedLabel) return;
@@ -50,10 +57,24 @@ const MakeAnnouncementPage = () => {
     }
 
     setSubmitting(true);
+
+    let attachmentUrl = null;
+    if (attachment) {
+      try {
+        attachmentUrl = await uploadAttachment(attachment);
+      } catch (uploadErr) {
+        setSuccessMsg('Failed to upload attachment.');
+        setTimeout(() => setSuccessMsg(''), 3000);
+        setSubmitting(false);
+        return;
+      }
+    }
+
     const { error } = await createAnnouncement(
       title.trim(),
       description.trim(),
-      selectedLabel
+      selectedLabel,
+      attachmentUrl
     );
     setSubmitting(false);
 
@@ -66,6 +87,9 @@ const MakeAnnouncementPage = () => {
     setTitle('');
     setDescription('');
     setSelectedLabel(null);
+    setAttachment(null);
+    const fileInput = document.getElementById('announcement-file-upload');
+    if (fileInput) fileInput.value = '';
     setSuccessMsg('Announcement posted successfully!');
     setTimeout(() => setSuccessMsg(''), 3000);
   };
@@ -132,6 +156,24 @@ const MakeAnnouncementPage = () => {
               );
             })}
           </div>
+        </div>
+
+        {/* Attachment */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-foreground/90">Attachment <span className="text-muted-foreground/50 font-normal">(optional)</span></label>
+          <label className="flex h-10 w-full cursor-pointer items-center rounded-md border border-border/30 bg-secondary/20 px-3 py-2 text-sm hover:bg-secondary/30 transition-colors">
+            <Upload className="w-4 h-4 mr-2 opacity-60" />
+            <span className="truncate text-muted-foreground">
+              {attachment ? attachment.name : 'Upload image or PDF'}
+            </span>
+            <input
+              id="announcement-file-upload"
+              type="file"
+              className="hidden"
+              accept="image/jpeg,image/jpg,image/png,application/pdf"
+              onChange={handleFileChange}
+            />
+          </label>
         </div>
 
         {/* Submit Button + Success Message */}

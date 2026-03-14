@@ -105,9 +105,9 @@ export const NoticesPage = () => {
     });
   }, []);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, attachmentUrl) => {
     if (!window.confirm('Are you sure you want to delete this announcement?')) return;
-    const { success } = await deleteAnnouncement(id);
+    const { success } = await deleteAnnouncement(id, attachmentUrl);
     if (success) {
       setAnnouncements((prev) => prev.filter((a) => a.id !== id));
     }
@@ -156,7 +156,7 @@ export const NoticesPage = () => {
                   </span>
                   {student.admin && (
                     <button
-                      onClick={() => handleDelete(item.id)}
+                      onClick={() => handleDelete(item.id, item.attachment_url)}
                       className="p-1 rounded-md text-muted-foreground/40 hover:text-red-400 hover:bg-red-500/10 transition-colors"
                       title="Delete announcement"
                     >
@@ -168,6 +168,32 @@ export const NoticesPage = () => {
               <p className="text-sm text-muted-foreground/80 leading-relaxed line-clamp-2 mb-2">
                 {item.description}
               </p>
+
+              {/* Attachment */}
+              {item.attachment_url && (() => {
+                const url = item.attachment_url.toLowerCase();
+                const isImage = url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.png');
+                if (isImage) {
+                  return (
+                    <img
+                      src={item.attachment_url}
+                      alt="Attachment"
+                      className="mt-3 max-h-48 w-auto rounded-lg border border-border/20 object-cover"
+                    />
+                  );
+                }
+                return (
+                  <a
+                    href={item.attachment_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex items-center gap-1.5 text-xs text-primary/80 hover:text-primary hover:underline"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    View Attachment
+                  </a>
+                );
+              })()}
               <p className="text-xs text-muted-foreground/50 font-medium">
                 {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
               </p>
