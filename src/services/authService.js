@@ -110,6 +110,37 @@ export const loginStudent = async (loginData) => {
   }
 };
 
+// Staff Login - Verifies credentials against portal_staff table (admin + super_admin)
+export const loginStaff = async ({ username, password }) => {
+  try {
+    const { data, error } = await supabase
+      .from('portal_staff')
+      .select('*')
+      .eq('username', username)
+      .eq('password', password)
+      .single();
+
+    if (error || !data) {
+      return {
+        success: false,
+        error: 'Invalid username or password'
+      };
+    }
+
+    const { password: _, ...staffData } = data;
+    return {
+      success: true,
+      data: staffData,
+      message: 'Login successful!'
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error.message || 'Login failed'
+    };
+  }
+};
+
 // Optional: Get student by ID
 export const getStudentById = async (id) => {
   try {

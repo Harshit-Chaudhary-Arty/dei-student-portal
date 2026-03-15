@@ -37,18 +37,22 @@ const DashboardLayout = () => {
     );
   }
 
-  const navItems = [
-    { path: '/dashboard', icon: Home, label: 'Overview' },
-    { path: '/dashboard/attendance', icon: Calendar, label: 'Attendance' },
-    { path: '/dashboard/mark-attendance', icon: FileText, label: 'Mark Attendance' },
-    { path: '/dashboard/timetable', icon: BookOpen, label: 'Timetable' },
-    { path: '/dashboard/grades', icon: FileText, label: 'Grades' },
-    { path: '/dashboard/library', icon: Library, label: 'Library' },
-    { path: '/dashboard/notices', icon: Bell, label: 'Notices' },
-    { path: '/dashboard/make-announcement', icon: Megaphone, label: 'Make Announcement' },
-    { path: '/dashboard/leave-management', icon: FileQuestion, label: 'Leave Management' },
-    { path: '/dashboard/leave-approvals', icon: CheckSquare, label: 'DL/ML Approvals' },
+  const role = student.role || 'student';
+
+  const allNavItems = [
+    { path: '/dashboard',                     icon: Home,        label: 'Overview',          roles: ['student', 'admin', 'super_admin'] },
+    { path: '/dashboard/attendance',           icon: Calendar,    label: 'Attendance',        roles: ['student', 'admin'] },
+    { path: '/dashboard/mark-attendance',      icon: FileText,    label: 'Mark Attendance',   roles: ['admin'] },
+    { path: '/dashboard/timetable',            icon: BookOpen,    label: 'Timetable',         roles: ['student', 'admin'] },
+    { path: '/dashboard/grades',               icon: FileText,    label: 'Grades',            roles: ['student', 'admin'] },
+    { path: '/dashboard/library',              icon: Library,     label: 'Library',           roles: ['student', 'admin'] },
+    { path: '/dashboard/notices',              icon: Bell,        label: 'Notices',           roles: ['student', 'admin', 'super_admin'] },
+    { path: '/dashboard/make-announcement',    icon: Megaphone,   label: 'Make Announcement', roles: ['admin', 'super_admin'] },
+    { path: '/dashboard/leave-management',     icon: FileQuestion,label: 'Leave Management',  roles: ['student', 'admin'] },
+    { path: '/dashboard/leave-approvals',      icon: CheckSquare, label: 'DL/ML Approvals',   roles: ['admin'] },
   ];
+
+  const navItems = allNavItems.filter(item => item.roles.includes(role));
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-background border-r border-border/40">
@@ -57,9 +61,14 @@ const DashboardLayout = () => {
         <h1 className="text-lg font-semibold tracking-tight text-foreground flex items-center gap-2">
           <GraduationCap className="h-5 w-5 opacity-80" />
           <span>Portal</span>
-          {student.admin && (
+          {student.role === 'admin' && (
             <span className="px-1.5 py-px rounded-full text-[9px] font-semibold uppercase tracking-wider bg-emerald-500/10 text-emerald-400/80 border border-emerald-500/20 leading-tight">
               Admin
+            </span>
+          )}
+          {student.role === 'super_admin' && (
+            <span className="px-1.5 py-px rounded-full text-[9px] font-semibold uppercase tracking-wider bg-amber-500/10 text-amber-400/80 border border-amber-500/20 leading-tight">
+              Dean Office
             </span>
           )}
         </h1>

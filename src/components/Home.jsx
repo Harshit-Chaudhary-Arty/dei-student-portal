@@ -28,6 +28,8 @@ const Home = () => {
     });
   }, []);
 
+  const role = student.role || 'student';
+
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
@@ -41,62 +43,73 @@ const Home = () => {
             <User className="w-4 h-4 opacity-70" />
             {student.name}
           </span>
-          <span className="w-1 h-1 rounded-full bg-border" />
-          <span>{student.branch}</span>
-          <span className="w-1 h-1 rounded-full bg-border" />
-          <span>{student.year} Year</span>
-          <span className="w-1 h-1 rounded-full bg-border" />
-          <span>Roll {student.roll_no || student.rollNo}</span>
+          {student.role === 'super_admin' || student.role === 'admin' ? (
+            <>
+              <span className="w-1 h-1 rounded-full bg-border" />
+              <span className="capitalize">{student.role === 'super_admin' ? 'Dean Office' : 'Admin'}</span>
+            </>
+          ) : (
+            <>
+              <span className="w-1 h-1 rounded-full bg-border" />
+              <span>{student.branch}</span>
+              <span className="w-1 h-1 rounded-full bg-border" />
+              <span>{student.year} Year</span>
+              <span className="w-1 h-1 rounded-full bg-border" />
+              <span>Roll {student.roll_no || student.rollNo}</span>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Primary Actions Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Link
-          to="/dashboard/attendance"
-          className="group relative overflow-hidden rounded-xl border border-border/40 bg-card/30 p-6 hover:bg-card/60 transition-all duration-300 hover:shadow-sm hover:border-border/80"
-        >
-          <div className="flex flex-col gap-4">
-            <div className="p-3 w-fit rounded-lg bg-blue-500/10 text-blue-500 group-hover:bg-blue-500/20 transition-colors">
-              <Calendar className="w-6 h-6" />
+      {/* Primary Actions Grid — visible to student and admin only */}
+      {role !== 'super_admin' && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link
+            to="/dashboard/attendance"
+            className="group relative overflow-hidden rounded-xl border border-border/40 bg-card/30 p-6 hover:bg-card/60 transition-all duration-300 hover:shadow-sm hover:border-border/80"
+          >
+            <div className="flex flex-col gap-4">
+              <div className="p-3 w-fit rounded-lg bg-blue-500/10 text-blue-500 group-hover:bg-blue-500/20 transition-colors">
+                <Calendar className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-foreground group-hover:text-blue-500 transition-colors">Attendance</h3>
+                <p className="text-sm text-muted-foreground mt-1">View your daily attendance records</p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-medium text-foreground group-hover:text-blue-500 transition-colors">Attendance</h3>
-              <p className="text-sm text-muted-foreground mt-1">View your daily attendance records</p>
-            </div>
-          </div>
-        </Link>
+          </Link>
 
-        <Link
-          to="/dashboard/grades"
-          className="group relative overflow-hidden rounded-xl border border-border/40 bg-card/30 p-6 hover:bg-card/60 transition-all duration-300 hover:shadow-sm hover:border-border/80"
-        >
-          <div className="flex flex-col gap-4">
-            <div className="p-3 w-fit rounded-lg bg-emerald-500/10 text-emerald-500 group-hover:bg-emerald-500/20 transition-colors">
-              <FileText className="w-6 h-6" />
+          <Link
+            to="/dashboard/grades"
+            className="group relative overflow-hidden rounded-xl border border-border/40 bg-card/30 p-6 hover:bg-card/60 transition-all duration-300 hover:shadow-sm hover:border-border/80"
+          >
+            <div className="flex flex-col gap-4">
+              <div className="p-3 w-fit rounded-lg bg-emerald-500/10 text-emerald-500 group-hover:bg-emerald-500/20 transition-colors">
+                <FileText className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-foreground group-hover:text-emerald-500 transition-colors">Grades</h3>
+                <p className="text-sm text-muted-foreground mt-1">Check your latest semester results</p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-medium text-foreground group-hover:text-emerald-500 transition-colors">Grades</h3>
-              <p className="text-sm text-muted-foreground mt-1">Check your latest semester results</p>
-            </div>
-          </div>
-        </Link>
+          </Link>
 
-        <Link
-          to="/dashboard/timetable"
-          className="group relative overflow-hidden rounded-xl border border-border/40 bg-card/30 p-6 hover:bg-card/60 transition-all duration-300 hover:shadow-sm hover:border-border/80"
-        >
-          <div className="flex flex-col gap-4">
-            <div className="p-3 w-fit rounded-lg bg-purple-500/10 text-purple-500 group-hover:bg-purple-500/20 transition-colors">
-              <BookOpen className="w-6 h-6" />
+          <Link
+            to="/dashboard/timetable"
+            className="group relative overflow-hidden rounded-xl border border-border/40 bg-card/30 p-6 hover:bg-card/60 transition-all duration-300 hover:shadow-sm hover:border-border/80"
+          >
+            <div className="flex flex-col gap-4">
+              <div className="p-3 w-fit rounded-lg bg-purple-500/10 text-purple-500 group-hover:bg-purple-500/20 transition-colors">
+                <BookOpen className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-foreground group-hover:text-purple-500 transition-colors">Timetable</h3>
+                <p className="text-sm text-muted-foreground mt-1">Track your weekly schedule</p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-medium text-foreground group-hover:text-purple-500 transition-colors">Timetable</h3>
-              <p className="text-sm text-muted-foreground mt-1">Track your weekly schedule</p>
-            </div>
-          </div>
-        </Link>
-      </div>
+          </Link>
+        </div>
+      )}
 
       {/* Recent Announcements */}
       <div className="space-y-6 max-w-2xl">
