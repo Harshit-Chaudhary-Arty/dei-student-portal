@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Outlet, useLocation, Link } from 'react-router-dom';
-import { GraduationCap, LogOut, Home, Calendar, BookOpen, Library, FileText, Bell, Menu, Megaphone, FileQuestion, CheckSquare } from 'lucide-react';
+import { GraduationCap, LogOut, Home, Calendar, BookOpen, Library, FileText, Bell, Menu, Megaphone, FileQuestion, CheckSquare, Users } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -50,6 +50,7 @@ const DashboardLayout = () => {
     { path: '/dashboard/make-announcement',    icon: Megaphone,   label: 'Make Announcement', roles: ['admin', 'super_admin'] },
     { path: '/dashboard/leave-management',     icon: FileQuestion,label: 'Leave Management',  roles: ['student', 'admin'] },
     { path: '/dashboard/leave-approvals',      icon: CheckSquare, label: 'DL/ML Approvals',   roles: ['admin'] },
+    { path: '/dashboard/teacher-assignments',   icon: Users,       label: 'Teacher Assignments', roles: ['super_admin'] },
   ];
 
   const navItems = allNavItems.filter(item => item.roles.includes(role));
@@ -132,7 +133,7 @@ const DashboardLayout = () => {
 
       {/* Main Content Area */}
       <main className="flex-1 md:ml-64 min-h-screen">
-        <div className="mx-auto max-w-5xl p-6 md:p-12 pt-20 md:pt-12 fade-in">
+        <div className="w-full p-6 md:p-8 pt-20 md:pt-10 fade-in">
           <Outlet context={{ student }} />
         </div>
       </main>

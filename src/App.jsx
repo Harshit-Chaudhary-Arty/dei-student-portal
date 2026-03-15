@@ -13,6 +13,7 @@ import MakeAnnouncementPage from './components/MakeAnnouncementPage';
 import MarkAttendance from './components/MarkAttendance';
 import LeaveManagement from './components/LeaveManagement';
 import DLMLApprovals from './components/DLMLApprovals';
+import TeacherAssignments from './components/TeacherAssignments';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
           <Route path="make-announcement" element={<MakeAnnouncementPage />} />
           <Route path="leave-management" element={<LeaveManagement />} />
           <Route path="leave-approvals" element={<DLMLApprovals />} />
+          <Route path="teacher-assignments" element={<TeacherAssignments />} />
         </Route>
       </Routes>
     </Router>
